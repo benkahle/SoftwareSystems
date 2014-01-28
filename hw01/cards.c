@@ -69,10 +69,10 @@ int main() {
     get_input(card_name);
     check_input(card_name, &val);
     if (val == -1) {
-      //escape sequence "X" submitted
+      /*escape sequence "X" submitted*/
       break;
     } else if (val == 0) {
-      //input not understood
+      /*input not understood*/
       continue;
     }
     set_counter(&val, &count);
