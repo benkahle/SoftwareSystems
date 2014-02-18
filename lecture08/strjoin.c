@@ -27,8 +27,10 @@ char *strjoin(char *array[], int n)
     size += strlen(array[i]);
   }
   char *final = malloc(size*sizeof(char));
+  char *mark = final;
   for (int i=0; i < n; i++) {
-    final = strcat(final,array[i]);
+    strcpy(mark,array[i]);
+    mark += strlen(array[i]);
   }
   return final;
 }
