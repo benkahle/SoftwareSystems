@@ -22,14 +22,21 @@ char *tracks[] = {
 */
 char *strjoin(char *array[], int n)
 {
-    // TODO: fill this in
-    return NULL;
+  int size;
+  for (int i=0; i < n; i++) {
+    size += strlen(array[i]);
+  }
+  char *final = malloc(size*sizeof(char));
+  for (int i=0; i < n; i++) {
+    final = strcat(final,array[i]);
+  }
+  return final;
 }
 
 
 int main (int argc, char *argv[])
 {
-    char *s = strjoin(tracks, 5);
-    printf("%s\n", s);
-    return 0;
+  char *s = strjoin(tracks, 5);
+  printf("%s\n", s);
+  return 0;
 }
