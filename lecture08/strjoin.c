@@ -26,8 +26,10 @@ char *strjoin(char *array[], int n)
   for (int i=0; i < n; i++) {
     size += strlen(array[i]);
   }
-  char *final = malloc(size*sizeof(char));
+  char *final = (char *)malloc(size*sizeof(char));
+  final[0]='\0';
   char *mark = final;
+  
   for (int i=0; i < n; i++) {
     strcpy(mark,array[i]);
     mark += strlen(array[i]);
