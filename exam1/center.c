@@ -18,8 +18,26 @@ License: Creative Commons Attribution-ShareAlike 3.0
 
 char *center(char *s, int n, char fillchar)
 {
-    // FILL THIS IN
-    //    return NULL;
+    char *final = malloc(n*sizeof(char)+1);
+    char *cursor = final;
+    int size = strlen(s);
+    for (int i=0; i<n; i++) {
+        if (i<((n-size)/2)-1) {
+            *cursor = fillchar;
+            cursor++;
+        }
+        else if (i>(n-size)/2) {
+            *cursor = fillchar;
+            cursor++;
+        }
+        else {
+            strcpy(cursor, s);
+            cursor += size;
+            i+=size;
+        }
+    }
+    cursor = '\0';
+    return final;
 }
 
 

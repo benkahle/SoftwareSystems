@@ -10,7 +10,7 @@ License: Creative Commons Attribution-ShareAlike 3.0
 #include <string.h>
 #include <regex.h>
 
-#define NUM_TRACKS 5;
+#define NUM_TRACKS 5
 
 char tracks[][80] = {
     "So What",
@@ -40,9 +40,11 @@ void find_track(char *search_for)
 // Prints track number and title.
 void find_track_regex(char *pattern)
 {
-    int i, ret;
+    int i;
+    int ret;
     regex_t regex;
-    char *msgbuf;
+    char msgbuf[100];
+    printf("%i",(int)strlen(msgbuf));
 
     ret = regcomp(&regex, pattern, REG_EXTENDED || REG_NOSUB);
     if (ret) {
@@ -66,13 +68,13 @@ void find_track_regex(char *pattern)
     /* I'm not sure this is necessary, but it's possible that if you
        let regex go out of scope without running regfree, it leaks
        (that is, leaves some allocated memory unfreed). */
-    regfree(regex);
+    regfree(&regex);
 }
 
 
 int main (int argc, char *argv[])
 {
-    char *target = 'F';
+    char *target = "F";
     char *pattern = "Fr.*Fr.*";
 
     find_track(target);
