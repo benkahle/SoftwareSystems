@@ -16,7 +16,7 @@
     http://www.gnu.org/licenses/.
 
 */
-
+#include <inttypes.h>
 // generate a random float using the algorithm described
 // at allendowney.com/research/rand
 float my_random_float()
@@ -87,9 +87,42 @@ float my_random_float2()
 }
 
 // compute a random double using my algorithm
+// 1 8 23
+// 1 11 52
 double my_random_double()
 {
-  // TODO: fill this in
+  uint64_t x;
+  uint64_t mant;
+  uint64_t exp = 1022;
+  uint64_t mask = 1;
+
+  union {
+    double d;
+    uint64_t i;
+  } b;
+
+  // generate random bits until we see the first set bit
+  while (1) {
+    x = random();
+    x = (x << 32) | random();
+    if (x == 0) {
+      exp -= 63;
+    } else {
+      break;
+    }
+  }
+
+  // find the location of the first set bit and compute the exponent
+  while (x & mask) {
+    mask <<= 1;
+    exp--;
+  }
+  
+  // use the remaining bit as the mantissa
+  mant = x >> 11;
+  b.i = (exp << 52) | mant;
+
+  return b.d;
 }
 
 // return a constant (this is a dummy function for time trials)

@@ -16,5 +16,8 @@ LIB = mongo-c-driver/src
 tutorial: tutorial.c
 	gcc --std=gnu99 -I$(LIB) $(LIB)/*.c tutorial.c -o tutorial
 
-test_rand: test_rand.c
+test_rand: test_rand.c rand.c
 	gcc -O3 test_rand.c -o test_rand
+
+clean:
+	rm test_rand
