@@ -36,7 +36,6 @@ Regex *make_regex(char *pattern, int flags) {
         fprintf(stderr, "Malloc failed\n");
         exit(1);
     }
-
     int ret = regcomp(regex->inner_struct, pattern, flags);
     if (ret) {
         fprintf(stderr, "Could not compile regex\n");

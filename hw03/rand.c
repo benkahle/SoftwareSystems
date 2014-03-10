@@ -87,8 +87,6 @@ float my_random_float2()
 }
 
 // compute a random double using my algorithm
-// 1 8 23
-// 1 11 52
 double my_random_double()
 {
   uint64_t x;
