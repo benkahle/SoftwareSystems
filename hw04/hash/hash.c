@@ -246,7 +246,7 @@ typedef struct map {
 Map *make_map(int n)
 {
   int i;
-  Node *lists[n];
+  Node **lists = malloc(sizeof(Node)*n);
   for(i=0;i<n;i++) {
     // lists[i] = malloc(sizeof(Node));
     lists[i] = NULL;
@@ -261,13 +261,20 @@ Map *make_map(int n)
 void print_map(Map *map)
 {
   int i;
-
   for (i=0; i<map->n; i++) {
   	if (map->lists[i] != NULL) {
 	    printf ("%d\n", i);
 	    print_list (map->lists[i]);
   	}
   }
+}
+
+/* Takes a map and returns a map with double as many internal lists. */
+Map *resize_map(Map *map)
+{
+  Map *map2 = make_map(map->n*2);
+
+  return map2;
 }
 
 /* Adds a key-value pair to a map. */
@@ -282,14 +289,14 @@ void map_add(Map *map, Hashable *key, Value *value)
     }
     node->next = new_node;
   } else {
-    node = new_node;
+    map->lists[list_num] = new_node;
   }
 }
 
 /* Looks up a key and returns the corresponding value, or NULL. */
 Value *map_lookup(Map *map, Hashable *key)
 {
-  int list_num = map->n%hash_hashable(key);
+  int list_num = hash_hashable(key)%map->n;
   Value *value = list_lookup(map->lists[list_num], key);
   return value;
 }
@@ -301,7 +308,6 @@ void print_lookup(Value *value)
   print_value (value);
   printf ("\n");
 }
-
 
 int main ()
 {
