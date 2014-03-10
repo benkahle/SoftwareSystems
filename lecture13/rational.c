@@ -24,9 +24,7 @@ Rational *make_rational(int numer, int denom) {
 
 // Computes a floating-point approximation of a Rational.
 double rational_to_double(Rational *rational) {
-    double numer = (double) rational->numer;
-    double denom = (double) rational->denom;
-    double result = numer/denom;
+    double result = (double) rational->numer/rational->denom;
     return result;
 }
 
