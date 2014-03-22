@@ -346,12 +346,13 @@ void map_add(Map *map, Hashable *key, Value *value)
   Node *node = map->lists[list_num];
   Node *new_node = make_node(key, value, NULL);
   if (node != NULL) {
-    /*while (node->next) {
+    while (node->next) {
       node = node->next;
     }
-    node->next = new_node;*/
-    map = resize_map(map);
-    map_add(map, key, value);
+    node->next = new_node;
+    //Resizing was causing segfaults
+    /*map = resize_map(map);
+    map_add(map, key, value);*/
   } else {
     map->lists[list_num] = new_node;
   }
@@ -408,7 +409,7 @@ int main ()
   print_lookup(value);
 
   // make a map
-  Map *map = make_map(1);
+  Map *map = make_map(10);
   map_add(map, hashable1, value1);
   map_add(map, hashable2, value2);
   map_add(map, hashable3, value3);
