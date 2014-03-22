@@ -208,8 +208,41 @@ void print_list(Node *node)
   }
 }
 
-/* Prepends a new key-value pair onto a list.
+void free_hashable(Hashable *hashable)
+{
+  free(hashable->key);
+  free(hashable);
+}
 
+/*  Frees all internal memory of a node, then the node itself*/
+void free_node(Node *node)
+{
+  free(node->value);
+  free_hashable(node->key);
+  free(node);
+}
+
+/* Frees the memory of a node and all linearly linked nodes. */
+void free_list(Node *node)
+{
+  int stop = 0;
+  Node *next;
+  while(1) {
+    if (node->next) {
+      next = node->next;
+    } else {
+      stop = 1;
+    }
+    free_node(node);
+    if (stop) {break;}
+    if (next) {
+      Node *node = next;
+    }
+  }
+
+}
+
+/* Prepends a new key-value pair onto a list.
 This is actually a synonym for make_node.
  */
 Node *prepend(Hashable *key, Value *value, Node *rest)
@@ -269,11 +302,40 @@ void print_map(Map *map)
   }
 }
 
+/* Frees the memory of a map. */
+void free_map(Map *map)
+{
+  int i;
+  for (i=0; i<map->n; i++) {
+    if (map->lists[i] != NULL) {
+      free_list(map->lists[i]);
+    }
+  }
+  free(map);
+}
+
+void map_add(Map *map, Hashable *key, Value *value);
+
 /* Takes a map and returns a map with double as many internal lists. */
 Map *resize_map(Map *map)
 {
-  Map *map2 = make_map(map->n*2);
-
+  int temp = map->n;
+  Map *map2 = make_map(temp*2);
+  int i;
+  for (i=0; i<map->n; i++) {
+    if (map->lists[i] != NULL) {
+      Node *node = map->lists[i];
+      while(1) {
+        map_add(map2, node->key, node->value);
+        if (node->next) {
+          node = node->next;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+  free_map(map);
   return map2;
 }
 
@@ -284,14 +346,17 @@ void map_add(Map *map, Hashable *key, Value *value)
   Node *node = map->lists[list_num];
   Node *new_node = make_node(key, value, NULL);
   if (node != NULL) {
-    while (node->next) {
+    /*while (node->next) {
       node = node->next;
     }
-    node->next = new_node;
+    node->next = new_node;*/
+    map = resize_map(map);
+    map_add(map, key, value);
   } else {
     map->lists[list_num] = new_node;
   }
 }
+
 
 /* Looks up a key and returns the corresponding value, or NULL. */
 Value *map_lookup(Map *map, Hashable *key)
@@ -314,9 +379,17 @@ int main ()
   Hashable *hashable1 = make_hashable_int (1);
   Hashable *hashable2 = make_hashable_string ("Allen");
   Hashable *hashable3 = make_hashable_int (2);
+  Hashable *hashable4 = make_hashable_int (5);
+  Hashable *hashable5 = make_hashable_int (8);
+  Hashable *hashable6 = make_hashable_int (9);
+
 
   // make a list by hand
   Value *value1 = make_int_value (17);
+  Value *value3 = make_int_value (2);
+  Value *value4 = make_int_value (3);
+  Value *value5 = make_int_value (4);
+  Value *value6 = make_int_value (5);
   Node *node1 = make_node(hashable1, value1, NULL);
   print_node (node1);
 
@@ -335,9 +408,13 @@ int main ()
   print_lookup(value);
 
   // make a map
-  Map *map = make_map(10);
+  Map *map = make_map(1);
   map_add(map, hashable1, value1);
   map_add(map, hashable2, value2);
+  map_add(map, hashable3, value3);
+  map_add(map, hashable4, value4);
+  map_add(map, hashable5, value5);
+  map_add(map, hashable6, value6);
 
   printf ("Map\n");
   print_map(map);
