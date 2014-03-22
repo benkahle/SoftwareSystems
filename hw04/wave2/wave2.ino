@@ -56,7 +56,7 @@ void loop() {
   counter += stride;
   if (counter > high) {
     counter = low;
-    //Serial.println(counter);
+    Serial.println(counter);
   }
 
   // write to the digital pins  
