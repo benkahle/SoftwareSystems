@@ -58,22 +58,20 @@ int button2;
 ISR(TIMER0_COMPA_vect){
   button1 = digitalRead(buttonPin1);
   button2 = digitalRead(buttonPin2);
-  if (!button1) {
-    if(toggle0){
-      writeByte(high);
-      toggle0 = 0;
-    }
-    else{
-      writeByte(low);
-      toggle0 = 1;
-    }
+  if(toggle0){
+    writeByte(high);
+    toggle0 = 0;
+  }
+  else{
+    writeByte(low);
+    toggle0 = 1;
   }
 }
 
 //Writes value of x across digital pins 6-13, one bit for each pin.
 void writeByte(int x) {
-  int b = B11000000 | (x>>8);
-  int d = B00111111 | x;
+  int d = B11000000 | (x<<6);
+  int b = B00111111 | (x>>2);
   PORTB = b;
   PORTD = d;
 }
