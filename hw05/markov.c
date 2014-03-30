@@ -74,18 +74,85 @@ void parse_file(char* filename, GHashTable* table) {
       }
     }
   }
-  g_printf("Total Word Count: %i\n", i);
+  //g_printf("Total Word Count: %i\n", i);
   g_scanner_destroy(scanner);
+}
+
+typedef struct{
+  int count;
+  char* word;
+} Wordcount;
+
+/*
+Allocates a new Wordcount struct and returns a pointer to it
+@param {char *} word - Word to associate a count with;
+@param {int} count - Number of instances of the word;
+*/
+Wordcount* make_word_count(char* word, int count) {
+  Wordcount* new_word = malloc(sizeof(Wordcount));
+  if (!new_word) {
+    g_printf("Can't allocate a new Wordcount\n.");
+    exit(1);
+  }
+  new_word->count = count;
+  new_word->word = word;
+  return new_word;
+}
+
+/*
+Comparison function to sort Wordcount structs in decending order by count and alphabetically if count ties
+@param {Wordcount *} a - first wordcount struct
+@param {Wordcount *} b - second wordcount struct
+@returns {int} - Positive if b should be before a; negative if b should be before a; 0 if equal
+*/
+int compare_word_count(Wordcount* a, Wordcount* b, void* data) {
+  if (a->count > b->count) {
+    return -1;
+  } else if (a->count == b->count) {
+    return g_strcmp0(a->word, b->word);
+  } else {
+    return 1;
+  }
+}
+
+/*
+Insert a key/val pair as a Wordcount struct into the GSList
+@param {char *} key - key to store
+@param {int} val - int to store
+@param {void *} list - Pointer to a Glib Singly Linked List object in which to store the data
+*/
+void insert_result(char* key, int* val, void* list) { 
+  Wordcount* word = make_word_count(key, *val);
+  GSList* list_start = *(GSList **) list;
+  GSList* new_list_start = g_slist_insert_sorted(list_start, word, (GCompareFunc) compare_word_count);
+  *(GSList **)list = new_list_start;
+}
+
+/*
+Prints a wordcount object
+@param {Wordcount *} word - the wordcount object to print
+@param {void *} data - addtional data provided at calltime (not used)
+*/
+void print_word_count(Wordcount* word, void* data){
+  g_printf("%s --> %i\n", word->word, word->count);
+}
+
+/*
+Iterates through a GSList and prints each item in the list
+@param {GSList *} list - list object for which to print all items 
+*/
+void print_list(GSList* list){
+  g_slist_foreach(list, (GFunc) print_word_count, NULL);
 }
 
 /*
 Prints a key/value pair - used as a callback by a call to g_hash_table_foreach()
 @param {char *} key - key in a hashtable
 @param {int *} val - value in a hashtable
-@param {void *} data - additional data provided at calltime
+@param {void *} data - additional data provided at calltime (not used)
 */
-void print_results(char* key, int* val, void* data) {
-  g_printf("Words: %s --> %i\n", key, *val);
+void print_result(char* key, int* val, void* data) {
+  g_printf("%s --> %i\n", key, *val);
 }
 
 /*
@@ -99,6 +166,15 @@ static void free_key_value(gpointer key, gpointer value, gpointer user_data) {
   g_free(value);
 }
 
+/*
+Frees a wordcount struct
+@param {void *} data - a void pointer to a wordcount object
+*/
+static void free_word_count(void* data){
+  Wordcount* wordcount = (Wordcount *) data;
+  free(wordcount);
+}
+
 int main(int argc, char const *argv[])
 {
   char *filename = NULL;
@@ -106,7 +182,7 @@ int main(int argc, char const *argv[])
     size_t len = strlen(argv[1]);
     filename = malloc(len+1);
     g_stpcpy(filename, argv[1]);
-    g_printf("Parsing file %s\n", argv[1]);
+    //g_printf("Parsing file %s...\n", argv[1]);
   } else {
     g_printf("Please provide a filename to parse.\n");
     return 0;
@@ -117,7 +193,12 @@ int main(int argc, char const *argv[])
     exit(1);
   }
   parse_file(filename, table);
-  g_hash_table_foreach(table, (GHFunc) print_results, NULL);
+
+  GSList* sorted_results = NULL;
+  //g_hash_table_foreach(table, (GHFunc) print_result, NULL);
+  g_hash_table_foreach(table, (GHFunc) insert_result, &sorted_results);
+  print_list(sorted_results);
+  g_slist_free_full(sorted_results, (GDestroyNotify) free_word_count);
   g_hash_table_foreach(table, free_key_value, NULL);
   g_hash_table_destroy(table);
   return 0;
