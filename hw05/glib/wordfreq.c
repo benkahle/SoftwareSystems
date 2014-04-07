@@ -184,8 +184,9 @@ int main(int argc, char const *argv[])
     g_stpcpy(filename, argv[1]);
     //g_printf("Parsing file %s...\n", argv[1]);
   } else {
-    g_printf("Please provide a filename to parse.\n");
-    return 0;
+    filename = (char*) "alice.txt";
+    //g_printf("Please provide a filename to parse.\n");
+    //return 0
   }
   GHashTable* table = g_hash_table_new(g_str_hash,g_str_equal);
   if (!table) {
