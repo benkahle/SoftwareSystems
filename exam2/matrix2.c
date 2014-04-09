@@ -169,6 +169,61 @@ double *row_sum(Matrix *A) {
    Feel free to use row_sum().
 */
 
+/*
+Determines if a given matrix is a magic square.
+Returns 1 if true, 0 if not.
+*/
+int is_magic_square(Matrix *A) {
+    assert(A->rows == A->cols);
+    double total;
+    int i, j, k;
+    int edges = A->rows*2+2;
+    double totals[edges];
+    k = 0;
+    //sum all rows
+    for (i=0;i<A->rows;i++){
+        total = 0;
+        for (j=0;j<A->cols;j++){
+            total += A->data[i][j];
+        }
+        totals[k] = total;
+        k++;
+    }
+    //sum all cols
+    for (j=0;j<A->cols;j++){
+        total = 0;
+        for (i=0;i<A->rows;i++){
+            total += A->data[i][j];
+        }
+        totals[k] = total;
+        k++;
+    }
+    //sum right diagonal
+    j = 0;
+    total = 0;
+    for (i = 0; i<A->rows; i++){
+        total += A->data[i][j];
+        j++;
+    }
+    totals[k] = total;
+    k++;
+    //sum left diagonal
+    j = A->cols-1;
+    total = 0;
+    for (i = 0; i<A->rows; i++) {
+        total += A->data[i][j];
+        j--;
+    }
+    totals[k] = total;
+    //check sums
+    int magic = totals[0];
+    for (i = 0; i<edges; i++) {
+        if (magic != totals[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
 int main() {
     int i;
@@ -202,6 +257,35 @@ int main() {
 	printf("row %d\t%lf\n", i, sums[i]);
     }
     // should print 6, 22, 38
+
+    D->data[0][0] = 2;
+    D->data[0][1] = 7;
+    D->data[0][2] = 6;
+    D->data[1][0] = 9;
+    D->data[1][1] = 5;
+    D->data[1][2] = 1;
+    D->data[2][0] = 4;
+    D->data[2][1] = 3;
+    D->data[2][2] = 8;
+
+    Matrix *E = make_matrix(8,8);
+    consecutive_matrix(E);
+    Matrix *F = make_matrix(5,5);
+    increment_matrix(F, 3);
+
+    printf("D\n");
+    print_matrix(D);
+    printf("E\n");
+    print_matrix(E);
+    printf("F\n");
+    print_matrix(F);
+
+    int res = is_magic_square(D);
+    printf("D magic? %i\n", res);
+    res = is_magic_square(E);
+    printf("E magic? %i\n", res);
+    res = is_magic_square(F);
+    printf("F magic? %i\n", res);
 
     return 0;
 }
