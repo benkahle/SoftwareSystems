@@ -22,6 +22,11 @@ typedef struct {
     gchar *word;
 } Pair;
 
+void pair_free (Pair* p) {
+    //g_free((gpointer*)p->word);
+    g_free((gpointer*)p);
+}
+
 
 /* Compares two key-value pairs by frequency. */
 gint compare_pair (gpointer v1, gpointer v2, gpointer user_data)
@@ -67,11 +72,12 @@ void incr (GHashTable* hash, gchar *key)
     gint *val = (gint *) g_hash_table_lookup (hash, key);
 
     if (val == NULL) {
-	gint *val1 = g_new (gint, 1);
-	*val1 = 1;
-	g_hash_table_insert (hash, key, val1);
+	   gint *val1 = g_new (gint, 1);
+	   *val1 = 1;
+	   g_hash_table_insert (hash, key, val1);
     } else {
-	*val += 1;
+	   *val += 1;
+       g_free(key);
     }
 }
 
@@ -94,20 +100,22 @@ int main (int argc, char** argv)
 
     /* string array is a (two-L) NULL terminated array of pointers to
        (one-L) NUL terminated strings */
-    gchar **array;
     gchar line[128];
-    GHashTable* hash = g_hash_table_new (g_str_hash, g_str_equal);
+    GHashTable* hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
     int i;
 
     // read lines from the file and build the hash table
+    gchar **array;  
+    gchar *res;
     while (1) {
-	gchar *res = fgets (line, sizeof(line), fp);
-	if (res == NULL) break;
+	   res = fgets (line, sizeof(line), fp);
+	   if (res == NULL) break;
 
-	array = g_strsplit(line, " ", 0);
-	for (i=0; array[i] != NULL; i++) {
-	    incr(hash, array[i]);
-	}
+	   array = g_strsplit(line, " ", 0);
+	   for (i=0; array[i] != NULL; i++) {
+	      incr(hash, array[i]);
+	   }
+       g_free(array);
     }
     fclose (fp);
 
@@ -115,7 +123,7 @@ int main (int argc, char** argv)
     // g_hash_table_foreach (hash,  (GHFunc) printor, "Word %s freq %d\n");
 
     // iterate the hash table and build the sequence
-    GSequence *seq = g_sequence_new (NULL);
+    GSequence *seq = g_sequence_new (g_free);
     g_hash_table_foreach (hash,  (GHFunc) accumulator, (gpointer) seq);
 
     // iterate the sequence and print the pairs
@@ -124,7 +132,5 @@ int main (int argc, char** argv)
     // try (unsuccessfully) to free everything
     g_hash_table_destroy (hash);
     g_sequence_free (seq);
-
     return 0;
 }
- 

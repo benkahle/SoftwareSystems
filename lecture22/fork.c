@@ -10,6 +10,9 @@
 // errno is an external global variable that contains
 // error information
 extern int errno;
+static int static_int;
+int shared_int;
+int* int_pointer = NULL;
 
 // get_seconds returns the number of seconds since the
 // beginning of the day, with microsecond precision
@@ -25,6 +28,10 @@ void child_code(int i)
 {
   sleep (i);
   printf ("Hello from child %d.\n", i);
+  printf("static_int: %i\n", static_int++);
+  printf("static_int: %i\n", static_int++);
+  printf("shared_int: %i\n", shared_int++);
+  printf("shared_int: %i\n", shared_int++);
   exit (i);
 }
 
@@ -37,6 +44,9 @@ int main (int argc, char *argv[])
   pid_t pid;
   double start, stop;
   int i, num_children;
+  static_int = 0;
+  printf("static_int: %i\n", static_int);
+  printf("shared_int: %i\n", shared_int);
 
   // the first command-line argument is the name of the executable.
   // if there is a second, it is the number of children to create.
@@ -84,6 +94,9 @@ int main (int argc, char *argv[])
     status = WEXITSTATUS (status);
     printf ("Child %d exited with error code %d.\n", pid, status);
   }
+
+  printf("static_int: %i\n", static_int);
+  printf("shared_int: %i\n", shared_int);
   // compute the elapsed time
   stop = get_seconds ();
   printf ("Elapsed time = %f seconds.\n", stop - start);

@@ -44,6 +44,7 @@ typedef struct {
   int counter;
   int end;
   int *array;
+  Semaphore *sem;
 } Shared;
 
 Shared *make_shared (int end)
@@ -53,6 +54,7 @@ Shared *make_shared (int end)
 
   shared->counter = 0;
   shared->end = end;
+  shared->sem = make_semaphore(1);
 
   shared->array = check_malloc (shared->end * sizeof(int));
   for (i=0; i<shared->end; i++) {
@@ -79,17 +81,20 @@ void join_thread (pthread_t thread)
 
 void child_code (Shared *shared)
 {
-  printf ("Starting child at counter %d\n", shared->counter);
-
+  //printf ("Starting child at counter %d\n", shared->counter);
+  int count;
   while (1) {
-    if (shared->counter >= shared->end) {
+    sem_wait(shared->sem);
+    count = shared->counter++;
+    sem_signal(shared->sem);
+    if (count >= shared->end) {
       return;
     }
-    shared->array[shared->counter]++;
-    shared->counter++;
+    shared->array[count]++;
+    // shared->counter++;
 
     if (shared->counter % 10000 == 0) {
-      printf ("%d\n", shared->counter);
+      //printf ("%d\n", shared->counter);
     }
   }
 }
@@ -98,7 +103,7 @@ void *entry (void *arg)
 {
   Shared *shared = (Shared *) arg;
   child_code (shared);
-  printf ("Child done.\n");
+  //printf ("Child done.\n");
   pthread_exit (NULL);
 }
 
@@ -106,7 +111,7 @@ void check_array (Shared *shared)
 {
   int i, errors=0;
 
-  printf ("Checking...\n");
+  //printf ("Checking...\n");
 
   for (i=0; i<shared->end; i++) {
     if (shared->array[i] != 1) errors++;
